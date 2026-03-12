@@ -1,28 +1,59 @@
-import {useState} from "react"
+import { useState } from "react"
+import { addExperience } from "../../services/userService"
 
 function ExperienceForm(){
 
- const [experience,setExperience] = useState("")
+const [form,setForm] = useState({
+company:"",
+position:"",
+startDate:"",
+endDate:"",
+description:""
+})
 
- const submit = (e)=>{
-  e.preventDefault()
-  console.log(experience)
- }
+const handleChange = (e)=>{
+setForm({...form,[e.target.name]:e.target.value})
+}
 
- return(
+const submit = async(e)=>{
+e.preventDefault()
 
-  <form onSubmit={submit}>
+try{
+await addExperience(form)
+alert("Experience Added")
+}catch(err){
+alert("Error")
+}
 
-   <input
-   placeholder="Experience"
-   onChange={(e)=>setExperience(e.target.value)}
-   />
+}
 
-   <button>Add</button>
+return(
 
-  </form>
+<div className="bg-white rounded-lg shadow-md p-6">
 
- )
+<h3 className="text-lg font-semibold mb-4">Add Experience</h3>
+
+<form onSubmit={submit} className="space-y-3">
+
+<input name="company" placeholder="Company" onChange={handleChange}/>
+
+<input name="position" placeholder="Position" onChange={handleChange}/>
+
+<input type="date" name="startDate" onChange={handleChange}/>
+
+<input type="date" name="endDate" onChange={handleChange}/>
+
+<textarea name="description" placeholder="Description" onChange={handleChange}/>
+
+<button className="bg-indigo-600 text-white px-4 py-2 rounded">
+Add Experience
+</button>
+
+</form>
+
+</div>
+
+)
 
 }
 

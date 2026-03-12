@@ -1,28 +1,58 @@
-import {useState} from "react"
+import { useState } from "react"
+import { addEducation } from "../../services/userService"
 
-function EducationForm(){
+function EducationForm() {
 
- const [education,setEducation] = useState("")
+const [form,setForm] = useState({
+  institution:"",
+  degree:"",
+  fieldOfStudy:"",
+  startYear:"",
+  endYear:""
+})
 
- const submit = (e)=>{
+const handleChange = (e)=>{
+  setForm({...form,[e.target.name]:e.target.value})
+}
+
+const submit = async (e)=>{
   e.preventDefault()
-  console.log(education)
- }
 
- return(
+  try{
+    await addEducation(form)
+    alert("Education Added")
+  }catch(err){
+    alert("Error")
+  }
+}
 
-  <form onSubmit={submit}>
+return(
 
-   <input
-   placeholder="Education"
-   onChange={(e)=>setEducation(e.target.value)}
-   />
+<div className="bg-white rounded-lg shadow-md p-6">
 
-   <button>Add</button>
+<h3 className="text-lg font-semibold mb-4">Add Education</h3>
 
-  </form>
+<form onSubmit={submit} className="space-y-3">
 
- )
+<input name="institution" placeholder="Institution" onChange={handleChange} />
+
+<input name="degree" placeholder="Degree" onChange={handleChange} />
+
+<input name="fieldOfStudy" placeholder="Field Of Study" onChange={handleChange} />
+
+<input name="startYear" placeholder="Start Year" onChange={handleChange} />
+
+<input name="endYear" placeholder="End Year" onChange={handleChange} />
+
+<button className="bg-indigo-600 text-white px-4 py-2 rounded">
+Add Education
+</button>
+
+</form>
+
+</div>
+
+)
 
 }
 

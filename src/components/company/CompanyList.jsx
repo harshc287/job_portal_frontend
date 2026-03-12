@@ -1,19 +1,13 @@
-import CompanyCard from "./CompanyCard"
+import CompanyCard from "./CompanyCard";
 
-function CompanyList({companies}){
-
- return(
-
-  <div>
-
-   {companies.map(c=>(
-     <CompanyCard key={c._id} company={c}/>
-   ))}
-
-  </div>
-
- )
-
+function CompanyList({ companies }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {companies.map((company) => (
+        <CompanyCard key={company._id} company={company} />
+      ))}
+    </div>
+  );
 }
 
-export default CompanyList
+export default CompanyList;

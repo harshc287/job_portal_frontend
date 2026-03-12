@@ -5,13 +5,15 @@ export const AuthContext = createContext()
 
 export const AuthProvider = ({children})=>{
 
-  const [user,setUser] = useState(null)
+   const [user, setUser] = useState(
+  JSON.parse(localStorage.getItem("user")) || null
+ )
 
   const login = async(data)=>{
 
     const res = await loginUser(data)
 
-    localStorage.setItem("token",res.token)
+    localStorage.setItem("user", JSON.stringify(res))
 
     setUser(res)
   }
@@ -20,7 +22,7 @@ export const AuthProvider = ({children})=>{
 
     const res = await registerUser(data)
 
-    localStorage.setItem("token",res.token)
+  localStorage.setItem("user", JSON.stringify(res))
 
     setUser(res)
   }
