@@ -1,22 +1,21 @@
 import { useState, useEffect } from "react";
-import { getAllJobs, deleteJob } from "../../services/adminService";
+import { getPendingJobs, approveJob, rejectJob } from "../../services/adminService";
 import toast from "react-hot-toast";
 
-function ManageJobs() {
+function PendingJobs() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   const fetchJobs = async () => {
     try {
       setLoading(true);
-      const data = await getAllJobs(page, 10, search);
+      const data = await getPendingJobs(page);
       setJobs(data.jobs);
       setTotalPages(data.totalPages);
     } catch {
-      toast.error("Failed to load jobs");
+      toast.error("Failed to load pending jobs");
     } finally {
       setLoading(false);
     }
@@ -24,38 +23,37 @@ function ManageJobs() {
 
   useEffect(() => {
     fetchJobs();
-  }, [page, search]);
+  }, [page]);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this job?")) return;
+  const handleApprove = async (id) => {
     try {
-      await deleteJob(id);
-      toast.success("Job deleted");
+      await approveJob(id);
+      toast.success("Job approved");
       fetchJobs();
     } catch {
-      toast.error("Delete failed");
+      toast.error("Approval failed");
     }
   };
 
-  if (loading) {
-    return <div className="bg-white rounded-lg shadow-md p-4 animate-pulse h-64"></div>;
-  }
+  const handleReject = async (id) => {
+    try {
+      await rejectJob(id);
+      toast.success("Job rejected");
+      fetchJobs();
+    } catch {
+      toast.error("Rejection failed");
+    }
+  };
+
+  if (loading) return <div className="bg-white rounded-lg shadow-md p-4 animate-pulse h-64"></div>;
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <input
-        type="text"
-        placeholder="Search jobs..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full md:w-1/3 px-4 py-2 border rounded-lg mb-4"
-      />
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
           </tr>
         </thead>
@@ -64,22 +62,27 @@ function ManageJobs() {
             <tr key={job._id}>
               <td className="px-6 py-4 whitespace-nowrap">{job.title}</td>
               <td className="px-6 py-4 whitespace-nowrap">{job.company}</td>
-              <td className="px-6 py-4 whitespace-nowrap">{job.location}</td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap space-x-2">
                 <button
-                  onClick={() => handleDelete(job._id)}
+                  onClick={() => handleApprove(job._id)}
+                  className="bg-green-600 text-white px-3 py-1 rounded text-sm"
+                >
+                  Approve
+                </button>
+                <button
+                  onClick={() => handleReject(job._id)}
                   className="bg-red-600 text-white px-3 py-1 rounded text-sm"
                 >
-                  Delete
+                  Reject
                 </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      {/* Pagination similar to ManageUsers */}
+      {/* Pagination */}
     </div>
   );
 }
 
-export default ManageJobs;
+export default PendingJobs;

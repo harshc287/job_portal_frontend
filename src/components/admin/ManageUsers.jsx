@@ -1,18 +1,23 @@
 import { useState, useEffect } from "react";
-import { getUsers, deleteUser } from "../../services/adminService";
-import { TrashIcon } from "@heroicons/react/24/outline";
+import { getUsers, deleteUser, toggleBanUser, updateUserRole } from "../../services/adminService";
+import toast from "react-hot-toast";
+import { TrashIcon, NoSymbolIcon  } from "@heroicons/react/24/outline";
 
 function ManageUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const fetchUsers = async () => {
     try {
-      const data = await getUsers();
-      setUsers(data);
+      setLoading(true);
+      const data = await getUsers(page, 10, search); // backend supports search & pagination
+      setUsers(data.users);
+      setTotalPages(data.totalPages);
     } catch (err) {
-      setError("Failed to load users");
+      toast.error("Failed to load users");
     } finally {
       setLoading(false);
     }
@@ -20,58 +25,138 @@ function ManageUsers() {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [page, search]);
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    if (!window.confirm("Are you sure?")) return;
     try {
       await deleteUser(id);
-      setUsers(users.filter((user) => user._id !== id));
-    } catch (err) {
-      alert("Failed to delete user");
+      toast.success("User deleted");
+      fetchUsers();
+    } catch {
+      toast.error("Delete failed");
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div className="text-red-500">{error}</div>;
+  const handleBan = async (id) => {
+    try {
+      await toggleBanUser(id);
+      toast.success("User ban status toggled");
+      fetchUsers();
+    } catch {
+      toast.error("Failed to update ban");
+    }
+  };
+
+const handleRoleChange = async (id, newRole) => {
+  try {
+    await updateUserRole(id, newRole);
+    toast.success("Role updated");
+    fetchUsers();
+  } catch {
+    toast.error("Role update failed");
+  }
+};
+
+  const filteredUsers = users.filter(user =>
+    user.name.toLowerCase().includes(search.toLowerCase()) ||
+    user.email.toLowerCase().includes(search.toLowerCase())
+  );
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-4 animate-pulse">
+        <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="h-12 bg-gray-100 rounded mb-2"></div>
+        ))}
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Name
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Email
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Role
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {users.map((user) => (
-            <tr key={user._id}>
-              <td className="px-6 py-4 whitespace-nowrap">{user.name}</td>
-              <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
-              <td className="px-6 py-4 whitespace-nowrap capitalize">{user.role}</td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <button
-                  onClick={() => handleDelete(user._id)}
-                  className="text-red-600 hover:text-red-800"
-                >
-                  <TrashIcon className="w-5 h-5" />
-                </button>
-              </td>
+    <div className="bg-white rounded-lg shadow-md p-6">
+      {/* Search */}
+      <input
+        type="text"
+        placeholder="Search users..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-indigo-500"
+      />
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {filteredUsers.map((user) => (
+              <tr key={user._id}>
+                <td className="px-6 py-4 whitespace-nowrap">{user.name}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <select
+                    value={user.role}
+                    onChange={(e) => handleRoleChange(user._id, e.target.value)}
+                    className="border rounded p-1 text-sm"
+                  >
+                    <option value="jobseeker">Jobseeker</option>
+                    <option value="employer">Employer</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {user.banned ? (
+                    <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Banned</span>
+                  ) : (
+                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Active</span>
+                  )}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap space-x-2">
+                  <button
+                    onClick={() => handleBan(user._id)}
+                    className={`px-3 py-1 rounded text-white text-sm ${user.banned ? 'bg-green-600' : 'bg-yellow-600'}`}
+                  >
+                    {user.banned ? 'Unban' : 'Ban'}
+                  </button>
+                  <button
+                    onClick={() => handleDelete(user._id)}
+                    className="bg-red-600 text-white px-3 py-1 rounded text-sm"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-between items-center mt-4">
+        <button
+          disabled={page === 1}
+          onClick={() => setPage(p => p - 1)}
+          className="px-4 py-2 bg-indigo-600 text-white rounded disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <span>Page {page} of {totalPages}</span>
+        <button
+          disabled={page === totalPages}
+          onClick={() => setPage(p => p + 1)}
+          className="px-4 py-2 bg-indigo-600 text-white rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }

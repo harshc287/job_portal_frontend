@@ -24,6 +24,9 @@ import AdminDashboard from "../pages/admin/AdminDashboard"
 import AdminUsers from "../pages/admin/AdminUsers"
 import AdminJobs from "../pages/admin/AdminJobs"
 import AdminAnalytics from "../pages/admin/AdminAnalytics"
+import AdminPendingJobs from "../pages/admin/AdminPendingJobs"
+import AdminApplications from "../pages/admin/AdminApplications"
+
 
 import InterviewSchedule from "../pages/interview/InterviewSchedule"
 import MyInterviews from "../pages/interview/MyInterviews"
@@ -61,6 +64,8 @@ function AppRoutes(){
    <Route path="/admin/users" element={<AdminUsers/>} />
    <Route path="/admin/jobs" element={<AdminJobs/>} />
    <Route path="/admin/analytics" element={<AdminAnalytics/>} />
+     <Route path="/admin/pending-jobs" element={<AdminPendingJobs/>} />
+   <Route path="/admin/applications" element={<AdminApplications/>} />
 
   </Routes>
 
