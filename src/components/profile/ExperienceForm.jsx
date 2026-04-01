@@ -1,60 +1,65 @@
+// src/components/profile/ExperienceForm.jsx
+
 import { useState } from "react"
 import { addExperience } from "../../services/userService"
 
-function ExperienceForm(){
+function ExperienceForm({ onAdd }) {
 
-const [form,setForm] = useState({
-company:"",
-position:"",
-startDate:"",
-endDate:"",
-description:""
-})
+  const [form, setForm] = useState({
+    company: "",
+    position: "",
+    startDate: "",
+    endDate: "",
+    description: ""
+  })
 
-const handleChange = (e)=>{
-setForm({...form,[e.target.name]:e.target.value})
-}
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value })
+  }
 
-const submit = async(e)=>{
-e.preventDefault()
+  const submit = async (e) => {
+    e.preventDefault()
 
-try{
-await addExperience(form)
-alert("Experience Added")
-}catch(err){
-alert("Error")
-}
+    try {
+      await addExperience(form)
+      alert("Experience Added")
 
-}
+      // 🔥 refresh UI
+      onAdd()
 
-return(
+      // 🔥 clear form
+      setForm({
+        company: "",
+        position: "",
+        startDate: "",
+        endDate: "",
+        description: ""
+      })
 
-<div className="bg-white rounded-lg shadow-md p-6">
+    } catch (err) {
+      alert("Error")
+    }
+  }
 
-<h3 className="text-lg font-semibold mb-4">Add Experience</h3>
+  return (
+    <form onSubmit={submit} className="space-y-3">
 
-<form onSubmit={submit} className="space-y-3">
+      <input name="company" value={form.company} onChange={handleChange} placeholder="Company" />
 
-<input name="company" placeholder="Company" onChange={handleChange}/>
+      <input name="position" value={form.position} onChange={handleChange} placeholder="Position" />
 
-<input name="position" placeholder="Position" onChange={handleChange}/>
+      <input type="date" name="startDate" value={form.startDate} onChange={handleChange} />
 
-<input type="date" name="startDate" onChange={handleChange}/>
+      <input type="date" name="endDate" value={form.endDate} onChange={handleChange} />
 
-<input type="date" name="endDate" onChange={handleChange}/>
+      <textarea name="description" value={form.description} onChange={handleChange} placeholder="Description" />
 
-<textarea name="description" placeholder="Description" onChange={handleChange}/>
+      <button className="bg-indigo-600 text-white px-4 py-2 rounded">
+        Add Experience
+      </button>
 
-<button className="bg-indigo-600 text-white px-4 py-2 rounded">
-Add Experience
-</button>
-
-</form>
-
-</div>
-
-)
-
+    </form>
+  )
 }
 
 export default ExperienceForm

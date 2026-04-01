@@ -1,3 +1,5 @@
+// src/pages/profile/Profile.jsx
+
 import { useEffect, useState } from "react"
 import { getProfile } from "../../services/userService"
 
@@ -6,58 +8,108 @@ import ResumeUpload from "../../components/profile/ResumeUpload"
 import ExperienceForm from "../../components/profile/ExperienceForm"
 import EducationForm from "../../components/profile/EducationForm"
 
-function Profile(){
+function Profile() {
 
- const [user,setUser] = useState(null)
+  const [user, setUser] = useState(null)
+  const [editMode, setEditMode] = useState(false)
 
- useEffect(()=>{
-  getProfile().then(setUser)
- },[])
+  // 🔥 Fetch profile
+  const fetchProfile = async () => {
+    const data = await getProfile()
+    setUser(data)
+  }
 
- if(!user) return <p>Loading...</p>
+  useEffect(() => {
+    fetchProfile()
+  }, [])
 
- return (
+  if (!user) return <p>Loading...</p>
 
-  <div className="max-w-4xl mx-auto space-y-6">
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
 
-    {/* Profile Info */}
-    <ProfileCard user={user}/>
+      {/* Profile Info */}
+      <ProfileCard user={user} />
 
-    {/* Resume Upload */}
-    <ResumeUpload/>
+      {/* Update Button */}
+      {!editMode && (
+        <button
+          onClick={() => setEditMode(true)}
+          className="bg-indigo-600 text-white px-4 py-2 rounded"
+        >
+          Update Profile
+        </button>
+      )}
 
-    {/* Experience Section */}
-    <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-xl font-semibold mb-4">Experience</h2>
+      {/* Cancel Button */}
+      {editMode && (
+        <button
+          onClick={() => setEditMode(false)}
+          className="bg-gray-500 text-white px-4 py-2 rounded"
+        >
+          Cancel
+        </button>
+      )}
 
-      {user.experience?.map((exp,index)=>(
-        <div key={index} className="border-b py-2">
-          <p className="font-semibold">{exp.position}</p>
-          <p className="text-gray-600">{exp.company}</p>
-        </div>
-      ))}
+      {/* Resume Upload */}
+      <ResumeUpload />
 
-      <ExperienceForm/>
+      {/* EXPERIENCE */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <h2 className="text-xl font-semibold mb-4">Experience</h2>
+
+        {/* VIEW MODE */}
+        {!editMode && (
+          <>
+            {user.experience?.length > 0 ? (
+              user.experience.map((exp) => (
+                <div key={exp._id} className="border-b py-2">
+                  <p className="font-semibold ">Position: {exp.position}</p>
+                  <p className="text-gray-600">Experience: {exp.company}</p>
+                  <p className="text-sm text-gray-500">Description: {exp.description}</p>
+                </div>
+              ))
+            ) : (
+              <p>No experience added</p>
+            )}
+          </>
+        )}
+
+        {/* EDIT MODE */}
+        {editMode && (
+          <ExperienceForm onAdd={fetchProfile} />
+        )}
+      </div>
+
+      {/* EDUCATION */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <h2 className="text-xl font-semibold mb-4">Education</h2>
+
+        {/* VIEW MODE */}
+        {!editMode && (
+          <>
+            {user.education?.length > 0 ? (
+              user.education.map((edu) => (
+                <div key={edu._id} className="border-b py-2">
+                  <p className="font-semibold">{edu.degree}</p>
+                  <p className="text-gray-600">{edu.institution}</p>
+                  <p className="text-sm text-gray-500">{edu.fieldOfStudy}</p>
+                </div>
+              ))
+            ) : (
+              <p>No education added</p>
+            )}
+          </>
+        )}
+
+        {/* EDIT MODE */}
+        {editMode && (
+          <EducationForm onAdd={fetchProfile} />
+        )}
+      </div>
+
     </div>
-
-    {/* Education Section */}
-    <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-xl font-semibold mb-4">Education</h2>
-
-      {user.education?.map((edu,index)=>(
-        <div key={index} className="border-b py-2">
-          <p className="font-semibold">{edu.degree}</p>
-          <p className="text-gray-600">{edu.institution}</p>
-        </div>
-      ))}
-
-      <EducationForm/>
-    </div>
-
-  </div>
-
- )
-
+  )
 }
 
 export default Profile

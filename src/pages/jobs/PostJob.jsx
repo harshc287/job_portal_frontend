@@ -1,60 +1,59 @@
-import {useState} from "react"
-import {createJob} from "../../services/jobService"
+// src/pages/jobs/PostJob.jsx
 
-function PostJob(){
+import { useState } from "react"
+import { createJob } from "../../services/jobService"
+import { useNavigate } from "react-router-dom"
 
- const [title,setTitle] = useState("")
- const [description,setDescription] = useState("")
- const [salary,setSalary] = useState("")
- const [location,setLocation] = useState("")
+function PostJob() {
 
- const submit = async(e)=>{
+  const navigate = useNavigate()
 
-  e.preventDefault()
-
-  await createJob({
-   title,
-   description,
-   salary,
-   location
+  const [form, setForm] = useState({
+    title: "",
+    company: "",
+    location: "",
+    salary: "",
+    description: ""
   })
 
-  alert("Job Posted")
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value })
+  }
 
- }
+  const submit = async (e) => {
+    e.preventDefault()
 
- return(
+    await createJob(form)
+    alert("Job Posted")
 
-  <form onSubmit={submit}>
+    navigate("/my-jobs")
+  }
 
-   <h2>Post Job</h2>
+  return (
+    <div className="max-w-2xl mx-auto py-10">
 
-   <input
-   placeholder="Title"
-   onChange={(e)=>setTitle(e.target.value)}
-   />
+      <h2 className="text-2xl font-bold mb-6">Post a Job</h2>
 
-   <textarea
-   placeholder="Description"
-   onChange={(e)=>setDescription(e.target.value)}
-   />
+      <form onSubmit={submit} className="space-y-4 bg-white p-6 rounded-lg shadow">
 
-   <input
-   placeholder="Salary"
-   onChange={(e)=>setSalary(e.target.value)}
-   />
+        <input name="title" placeholder="Job Title" onChange={handleChange} className="input" />
 
-   <input
-   placeholder="Location"
-   onChange={(e)=>setLocation(e.target.value)}
-   />
+        <input name="company" placeholder="Company Name" onChange={handleChange} className="input" />
 
-   <button>Post</button>
+        <input name="location" placeholder="Location" onChange={handleChange} className="input" />
 
-  </form>
+        <input name="salary" placeholder="Salary" onChange={handleChange} className="input" />
 
- )
+        <textarea name="description" placeholder="Job Description" onChange={handleChange} className="input" />
 
+        <button className="w-full bg-indigo-600 text-white py-2 rounded-lg">
+          Post Job
+        </button>
+
+      </form>
+
+    </div>
+  )
 }
 
 export default PostJob

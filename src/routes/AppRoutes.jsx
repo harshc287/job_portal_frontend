@@ -31,6 +31,8 @@ import AdminApplications from "../pages/admin/AdminApplications"
 import InterviewSchedule from "../pages/interview/InterviewSchedule"
 import MyInterviews from "../pages/interview/MyInterviews"
 
+import ProtectedRoute from "../components/common/ProtectedRoute"
+
 function AppRoutes(){
 
  return(
@@ -50,7 +52,15 @@ function AppRoutes(){
    <Route path="/apply/:jobId" element={<ApplyJob/>} />
    <Route path="/applications" element={<MyApplications/>} />
 
-   <Route path="/profile" element={<Profile/>} />
+<Route 
+  path="/profile" 
+  element={
+    <ProtectedRoute>
+      <Profile/>
+    </ProtectedRoute>
+  } 
+/>
+
    <Route path="/edit-profile" element={<EditProfile/>} />
    <Route path="/resume" element={<ResumePage/>} />
 
