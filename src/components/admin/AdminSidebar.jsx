@@ -19,26 +19,49 @@ function AdminSidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-gray-900 text-white shadow-lg h-screen sticky top-0">
-      <div className="p-4 border-b border-gray-700">
-        <h2 className="text-xl font-bold text-indigo-400">Admin Panel</h2>
+    <aside className="w-64 h-screen sticky top-0 bg-white border-r shadow-sm flex flex-col">
+
+      {/* 🔷 HEADER */}
+      <div className="px-6 py-5 border-b bg-gradient-to-r from-indigo-600 to-indigo-500">
+        <h2 className="text-xl font-bold text-white tracking-wide">
+          Admin Panel
+        </h2>
+        <p className="text-xs text-indigo-100 mt-1">
+          Manage platform
+        </p>
       </div>
-      <nav className="mt-6">
+
+      {/* 🔹 NAV */}
+      <nav className="flex-1 px-4 py-6 space-y-2">
+
         {navigation.map((item) => (
           <NavLink
             key={item.name}
             to={item.to}
             className={({ isActive }) =>
-              `flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition ${
-                isActive ? "bg-gray-800 text-white border-l-4 border-indigo-500" : ""
+              `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group
+              ${
+                isActive
+                  ? "bg-indigo-50 text-indigo-600 shadow-sm"
+                  : "text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
               }`
             }
           >
-            <item.icon className="w-5 h-5 mr-3" />
+            {/* ICON */}
+            <item.icon className="w-5 h-5 group-hover:scale-110 transition" />
+
+            {/* TEXT */}
             {item.name}
           </NavLink>
         ))}
+
       </nav>
+
+      {/* 🔻 FOOTER */}
+      <div className="p-4 border-t text-xs text-gray-400 text-center">
+        © 2026 JobPortal
+      </div>
+
     </aside>
   );
 }

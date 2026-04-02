@@ -1,11 +1,8 @@
-// src/pages/jobs/PostJob.jsx
-
 import { useState } from "react"
 import { createJob } from "../../services/jobService"
 import { useNavigate } from "react-router-dom"
 
 function PostJob() {
-
   const navigate = useNavigate()
 
   const [form, setForm] = useState({
@@ -13,6 +10,8 @@ function PostJob() {
     company: "",
     location: "",
     salary: "",
+    experienceLevel: "",
+    skillsRequired: "",
     description: ""
   })
 
@@ -23,35 +22,102 @@ function PostJob() {
   const submit = async (e) => {
     e.preventDefault()
 
-    await createJob(form)
-    alert("Job Posted")
+    const payload = {
+      ...form,
+      salary: Number(form.salary),
+      skillsRequired: form.skillsRequired.split(",").map(s => s.trim())
+    }
 
+    await createJob(payload)
+
+    alert("✅ Job Posted Successfully")
     navigate("/my-jobs")
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-10">
+    <div className="min-h-screen bg-gray-50 py-10">
 
-      <h2 className="text-2xl font-bold mb-6">Post a Job</h2>
+      <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-2xl p-8 border">
 
-      <form onSubmit={submit} className="space-y-4 bg-white p-6 rounded-lg shadow">
+        <h2 className="text-3xl font-bold text-gray-800 mb-6">
+          🚀 Post a New Job
+        </h2>
 
-        <input name="title" placeholder="Job Title" onChange={handleChange} className="input" />
+        <form onSubmit={submit} className="space-y-5">
 
-        <input name="company" placeholder="Company Name" onChange={handleChange} className="input" />
+          {/* TITLE */}
+          <Input label="Job Title" name="title" onChange={handleChange} />
 
-        <input name="location" placeholder="Location" onChange={handleChange} className="input" />
+          {/* COMPANY */}
+          <Input label="Company Name" name="company" onChange={handleChange} />
 
-        <input name="salary" placeholder="Salary" onChange={handleChange} className="input" />
+          {/* LOCATION */}
+          <Input label="Location" name="location" onChange={handleChange} />
 
-        <textarea name="description" placeholder="Job Description" onChange={handleChange} className="input" />
+          {/* SALARY */}
+          <Input label="Salary (₹)" name="salary" type="number" onChange={handleChange} />
 
-        <button className="w-full bg-indigo-600 text-white py-2 rounded-lg">
-          Post Job
-        </button>
+          {/* EXPERIENCE */}
+          <div>
+            <label className="label">Experience Level</label>
+            <select
+              name="experienceLevel"
+              onChange={handleChange}
+              className="input"
+            >
+              <option value="">Select</option>
+              <option>Fresher</option>
+              <option>1 Year</option>
+              <option>2 Years</option>
+              <option>3+ Years</option>
+              <option>5+ Years</option>
+            </select>
+          </div>
 
-      </form>
+          {/* SKILLS */}
+          <div>
+            <label className="label">Skills (comma separated)</label>
+            <input
+              name="skillsRequired"
+              placeholder="React, Node, MongoDB"
+              onChange={handleChange}
+              className="input"
+            />
+          </div>
 
+          {/* DESCRIPTION */}
+          <div>
+            <label className="label">Job Description</label>
+            <textarea
+              name="description"
+              rows="5"
+              onChange={handleChange}
+              className="input"
+            />
+          </div>
+
+          {/* BUTTON */}
+          <button className="w-full bg-indigo-600 text-white py-3 rounded-xl hover:bg-indigo-700 transition font-semibold">
+            Post Job
+          </button>
+
+        </form>
+      </div>
+    </div>
+  )
+}
+
+/* 🔹 REUSABLE INPUT */
+function Input({ label, name, type = "text", onChange }) {
+  return (
+    <div>
+      <label className="label">{label}</label>
+      <input
+        type={type}
+        name={name}
+        onChange={onChange}
+        className="input"
+      />
     </div>
   )
 }

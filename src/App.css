@@ -43,3 +43,24 @@
 .input {
   @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none;
 }
+
+.input {
+  width: 100%;
+  border: 1px solid #0c0c0c;
+  padding: 10px 12px;
+  border-radius: 10px;
+  
+  transition: 0.2s;
+}
+
+.input:focus {
+  border-color: #171718;
+  box-shadow: 0 0 0 2px rgba(218, 218, 220, 0.2);
+}
+
+.label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #374151;
+}

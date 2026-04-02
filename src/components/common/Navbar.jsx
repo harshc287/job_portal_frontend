@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import { AuthContext } from "../../context/AuthContext";
 
 function Navbar() {
@@ -7,7 +7,20 @@ function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdown, setDropdown] = useState(false);
 
+  const dropdownRef = useRef();
   const navigate = useNavigate();
+
+  // ✅ CLOSE DROPDOWN ON OUTSIDE CLICK
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -17,6 +30,7 @@ function Navbar() {
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50 border-b">
       <div className="max-w-7xl mx-auto px-4">
+
         <div className="flex justify-between items-center h-16">
 
           {/* LOGO */}
@@ -31,40 +45,39 @@ function Navbar() {
             <NavLink to="/jobs">Jobs</NavLink>
             <NavLink to="/companies">Companies</NavLink>
 
-            {/* 👤 JOBSEEKER */}
+            {/* JOBSEEKER */}
             {user?.role === "jobseeker" && (
-              <>
-                <NavLink to="/applications">My Applications</NavLink>
-              </>
+              <NavLink to="/applications">Applications</NavLink>
             )}
 
-            {/* 🏢 EMPLOYER */}
+            {/* EMPLOYER */}
             {user?.role === "employer" && (
               <>
                 <NavLink to="/post-job">Post Job</NavLink>
                 <NavLink to="/my-jobs">My Jobs</NavLink>
+                <NavLink to="/create-company">Create Company</NavLink>
+                <NavLink to="/my-companies">My Companies</NavLink>
               </>
             )}
 
-            {/* 🛠 ADMIN */}
+            {/* ADMIN */}
             {user?.role === "admin" && (
-              <>
-                <NavLink to="/admin">Dashboard</NavLink>
-              </>
+              <NavLink to="/admin">Admin</NavLink>
             )}
 
-            {/* 🔐 AUTH */}
+            {/* AUTH */}
             {!user ? (
               <>
                 <NavLink to="/login">Login</NavLink>
                 <NavLink to="/register">Register</NavLink>
               </>
             ) : (
-              <div className="relative">
-                {/* Profile Button */}
+              <div className="relative" ref={dropdownRef}>
+
+                {/* PROFILE BUTTON */}
                 <button
-                  onClick={() => setDropdown(!dropdown)}
-                  className="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded-full hover:bg-gray-200"
+                  onClick={() => setDropdown(prev => !prev)}
+                  className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-full hover:bg-gray-200"
                 >
                   <div className="w-8 h-8 bg-indigo-600 text-white flex items-center justify-center rounded-full">
                     {user.name?.charAt(0).toUpperCase()}
@@ -75,8 +88,10 @@ function Navbar() {
                 {/* DROPDOWN */}
                 {dropdown && (
                   <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg border z-50">
+
                     <Link
                       to="/profile"
+                      onClick={() => setDropdown(false)}
                       className="block px-4 py-2 hover:bg-gray-100"
                     >
                       Profile
@@ -84,6 +99,7 @@ function Navbar() {
 
                     <Link
                       to="/edit-profile"
+                      onClick={() => setDropdown(false)}
                       className="block px-4 py-2 hover:bg-gray-100"
                     >
                       Edit Profile
@@ -95,6 +111,7 @@ function Navbar() {
                     >
                       Logout
                     </button>
+
                   </div>
                 )}
               </div>
@@ -103,7 +120,7 @@ function Navbar() {
 
           {/* MOBILE BUTTON */}
           <button
-            className="md:hidden"
+            className="md:hidden text-xl"
             onClick={() => setIsOpen(!isOpen)}
           >
             ☰
@@ -118,51 +135,26 @@ function Navbar() {
             <MobileNavLink to="/jobs" onClick={() => setIsOpen(false)}>Jobs</MobileNavLink>
             <MobileNavLink to="/companies" onClick={() => setIsOpen(false)}>Companies</MobileNavLink>
 
-            {user?.role === "jobseeker" && (
-              <MobileNavLink to="/applications" onClick={() => setIsOpen(false)}>
-                My Applications
-              </MobileNavLink>
-            )}
-
             {user?.role === "employer" && (
               <>
-                <MobileNavLink to="/post-job" onClick={() => setIsOpen(false)}>
-                  Post Job
-                </MobileNavLink>
-                <MobileNavLink to="/my-jobs" onClick={() => setIsOpen(false)}>
-                  My Jobs
-                </MobileNavLink>
+                <MobileNavLink to="/post-job" onClick={() => setIsOpen(false)}>Post Job</MobileNavLink>
+                <MobileNavLink to="/my-jobs" onClick={() => setIsOpen(false)}>My Jobs</MobileNavLink>
+                <MobileNavLink to="/my-companies" onClick={() => setIsOpen(false)}>My Companies</MobileNavLink>
               </>
-            )}
-
-            {user?.role === "admin" && (
-              <MobileNavLink to="/admin" onClick={() => setIsOpen(false)}>
-                Admin
-              </MobileNavLink>
             )}
 
             {!user ? (
               <>
-                <MobileNavLink to="/login" onClick={() => setIsOpen(false)}>
-                  Login
-                </MobileNavLink>
-                <MobileNavLink to="/register" onClick={() => setIsOpen(false)}>
-                  Register
-                </MobileNavLink>
+                <MobileNavLink to="/login" onClick={() => setIsOpen(false)}>Login</MobileNavLink>
+                <MobileNavLink to="/register" onClick={() => setIsOpen(false)}>Register</MobileNavLink>
               </>
             ) : (
-              <>
-                <MobileNavLink to="/profile" onClick={() => setIsOpen(false)}>
-                  Profile
-                </MobileNavLink>
-
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 text-red-500"
-                >
-                  Logout
-                </button>
-              </>
+              <button
+                onClick={handleLogout}
+                className="block w-full text-left px-4 py-2 text-red-500"
+              >
+                Logout
+              </button>
             )}
           </div>
         )}
@@ -172,7 +164,7 @@ function Navbar() {
   );
 }
 
-/* 🔹 NAV LINK */
+/* NAV LINK */
 function NavLink({ to, children }) {
   return (
     <Link
@@ -184,7 +176,7 @@ function NavLink({ to, children }) {
   );
 }
 
-/* 🔹 MOBILE LINK */
+/* MOBILE LINK */
 function MobileNavLink({ to, onClick, children }) {
   return (
     <Link
