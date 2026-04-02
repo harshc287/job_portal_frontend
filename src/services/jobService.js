@@ -8,11 +8,7 @@ export const getJobs = async (params = {}) => {
   return res.data
 }
 
-// ⚠️ Only keep if backend route exists
-export const searchJobs = async (params) => {
-  const res = await api.get("/jobs/search", { params })
-  return res.data
-}
+
 
 // ✅ Get single job
 export const getJobById = async (id) => {

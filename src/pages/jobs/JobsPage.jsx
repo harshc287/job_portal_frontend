@@ -7,26 +7,34 @@ import Loader from "../../components/common/Loader";
 
 function JobsPage() {
   const [jobs, setJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [filters, setFilters] = useState({ location: "", experience: "" });
+  const [filters, setFilters] = useState({
+    location: "",
+    experience: "",
+  });
 
-  // Fetch jobs with filters
+  const fetchJobs = async () => {
+    try {
+      setLoading(true);
+
+      const data = await getJobs({
+        keyword: searchKeyword,
+        ...filters,
+      });
+
+      setJobs(data);
+      setError(null);
+    } catch (err) {
+      setError("Failed to load jobs. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        setLoading(true);
-        const data = await getJobs({ keyword: searchKeyword, ...filters });
-        setJobs(data);
-        setError(null);
-      } catch (err) {
-        setError("Failed to load jobs. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchJobs();
   }, [searchKeyword, filters]);
 
@@ -39,43 +47,83 @@ function JobsPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Find Your Dream Job</h1>
+    <div className="min-h-screen bg-gray-50">
 
-      {/* Search Bar */}
-      <JobSearchBar onSearch={handleSearch} />
+      {/* HEADER */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="container mx-auto px-4 py-6">
+          <h1 className="text-3xl font-bold text-gray-800">
+            Find Your Dream Job
+          </h1>
+          <p className="text-gray-500 mt-1">
+            Explore opportunities from top companies 🚀
+          </p>
+        </div>
+      </div>
 
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-8">
-        {/* Sidebar Filter */}
+      {/* SEARCH */}
+      <div className="container mx-auto px-4 mt-6">
+        <JobSearchBar onSearch={handleSearch} />
+      </div>
+
+      {/* CONTENT */}
+      <div className="container mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+        {/* FILTER SIDEBAR */}
         <div className="lg:col-span-1">
           <JobFilter onFilter={handleFilter} />
         </div>
 
-        {/* Job Listings */}
+        {/* JOB LIST */}
         <div className="lg:col-span-3">
-          {loading && <Loader />}
+
+          {/* LOADING */}
+          {loading && (
+            <div className="flex justify-center py-10">
+              <Loader />
+            </div>
+          )}
+
+          {/* ERROR */}
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg">
               {error}
             </div>
           )}
+
+          {/* EMPTY STATE */}
           {!loading && !error && jobs.length === 0 && (
-            <div className="bg-gray-50 border border-gray-200 text-gray-600 px-6 py-12 rounded-lg text-center">
-              <p className="text-lg">No jobs found matching your criteria.</p>
+            <div className="bg-white border rounded-lg shadow-sm p-10 text-center">
+              <h2 className="text-xl font-semibold text-gray-700">
+                No jobs found 😕
+              </h2>
+              <p className="text-gray-500 mt-2">
+                Try changing filters or search keyword
+              </p>
+
               <button
                 onClick={() => {
                   setSearchKeyword("");
                   setFilters({ location: "", experience: "" });
                 }}
-                className="mt-4 text-indigo-600 hover:underline"
+                className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
               >
-                Clear filters
+                Reset Filters
               </button>
             </div>
           )}
-          {!loading && !error && jobs.length > 0 && <JobList jobs={jobs} />}
+
+          {/* JOB LIST */}
+          {!loading && !error && jobs.length > 0 && (
+            <>
+              <div className="mb-4 text-sm text-gray-500">
+                Showing {jobs.length} job(s)
+              </div>
+
+              <JobList jobs={jobs} />
+            </>
+          )}
+
         </div>
       </div>
     </div>

@@ -20,6 +20,9 @@ import ResumePage from "../pages/profile/ResumePage"
 import Companies from "../pages/company/Companies"
 import CompanyProfile from "../pages/company/CompanyProfile"
 
+import CreateCompany from "../pages/company/CreateCompany"
+import MyCompanies from "../pages/company/MyCompanies"
+
 import AdminDashboard from "../pages/admin/AdminDashboard"
 import AdminUsers from "../pages/admin/AdminUsers"
 import AdminJobs from "../pages/admin/AdminJobs"
@@ -66,6 +69,24 @@ function AppRoutes(){
 
    <Route path="/companies" element={<Companies/>} />
    <Route path="/companies/:id" element={<CompanyProfile/>} />
+
+   <Route 
+        path="/create-company" 
+        element={
+          <ProtectedRoute>
+            <CreateCompany />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/my-companies" 
+        element={
+          <ProtectedRoute>
+            <MyCompanies />
+          </ProtectedRoute>
+        } 
+      />
 
    <Route path="/interviews" element={<MyInterviews/>} />
    <Route path="/schedule-interview" element={<InterviewSchedule/>} />
